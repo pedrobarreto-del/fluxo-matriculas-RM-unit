@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Fluxo RM – Análise de Documentos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    :root{
+        --unit-azul-escuro:#003366;
+        --unit-azul-medio:#0056a6;
+        --unit-azul-claro:#e6f0ff;
+        --unit-cinza-claro:#f5f5f5;
+        --unit-cinza-medio:#cccccc;
+        --unit-verde:#00a859;
+        --unit-laranja:#ff8a00;
+        --unit-fundo:#f8fafc;
+    }
+    *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;}
+    body{
+        margin:0;
+        background:var(--unit-fundo);
+        color:#222;
+    }
+    .page{
+        max-width:1100px;
+        margin:0 auto;
+        padding:24px 32px 40px;
+    }
+    /* CABEÇALHO */
+    .header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        margin-bottom:24px;
+        padding-bottom:14px;
+        border-bottom:3px solid var(--unit-azul-medio);
+    }
+    .logo{
+        display:flex;
+        align-items:center;
+        gap:12px;
+    }
+    .logo-mark{
+        width:46px;
+        height:46px;
+        border-radius:10px;
+        background:var(--unit-azul-medio);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#fff;
+        font-weight:bold;
+        font-size:22px;
+        box-shadow:0 3px 8px rgba(0,0,0,0.18);
+    }
+    .logo-text{
+        display:flex;
+        flex-direction:column;
+    }
+    .logo-text span:first-child{
+        font-size:20px;
+        font-weight:bold;
+        color:var(--unit-azul-escuro);
+    }
+    .logo-text span:last-child{
+        font-size:12px;
+        color:#555;
+    }
+    .header-title{
+        text-align:right;
+        font-size:14px;
+        color:var(--unit-azul-medio);
+    }
+    h1{
+        font-size:22px;
+        color:var(--unit-azul-escuro);
+        margin:0 0 6px;
+    }
+    .small{
+        font-size:12px;
+        color:#555;
+        margin:0 0 16px;
+    }
+
+    /* CARDS DE ETAPAS */
+    .cards-etapas{
+        display:flex;
+        flex-wrap:wrap;
+        gap:16px;
+        margin-bottom:20px;
+    }
+    .card-etapa{
+        flex:1 1 320px;
+        border-radius:14px;
+        background:#fff;
+        border:1px solid var(--unit-cinza-medio);
+        box-shadow:0 3px 8px rgba(0,0,0,0.05);
+        padding:14px 16px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        cursor:pointer;
+        transition:0.2s;
+    }
+    .card-etapa:hover{
+        transform:translateY(-2px);
+        box-shadow:0 6px 14px rgba(0,0,0,0.12);
+        border-color:var(--unit-azul-medio);
+    }
+    .card-left{
+        display:flex;
+        gap:10px;
+    }
+    .icon-circle{
+        width:40px;
+        height:40px;
+        border-radius:50%;
+        background:var(--unit-azul-claro);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:22px;
+    }
+    .icon-circle.primarios{
+        color:var(--unit-azul-medio);
+    }
+    .icon-circle.matricula{
+        color:var(--unit-verde);
+    }
+    .card-info{
+        display:flex;
+        flex-direction:column;
+    }
+    .card-title{
+        font-size:15px;
+        font-weight:bold;
+        color:var(--unit-azul-escuro);
+        margin-bottom:2px;
+    }
+    .card-sub{
+        font-size:12px;
+        color:#555;
+    }
+    .card-arrow{
+        font-size:18px;
+        color:var(--unit-azul-medio);
+    }
+
+    /* CONTAINERS DE FLUXO */
+    .etapa-container{
+        display:none;
+        border-radius:14px;
+        background:#fff;
+        border:1px solid var(--unit-cinza-medio);
+        box-shadow:0 3px 10px rgba(0,0,0,0.06);
+        padding:16px 18px 18px;
+        margin-bottom:18px;
+    }
+    .etapa-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:10px;
+    }
+    .etapa-title{
+        font-size:17px;
+        font-weight:bold;
+        color:var(--unit-azul-medio);
+        display:flex;
+        align-items:center;
+        gap:8px;
+    }
+    .pill{
+        display:inline-block;
+        padding:3px 8px;
+        border-radius:999px;
+        background:var(--unit-azul-claro);
+        color:var(--unit-azul-escuro);
+        font-size:11px;
+    }
+    .btn-voltar{
+        font-size:11px;
+        border-radius:999px;
+        border:1px solid var(--unit-azul-medio);
+        background:#fff;
+        color:var(--unit-azul-medio);
+        padding:4px 9px;
+        cursor:pointer;
+    }
+    .btn-voltar:hover{
+        background:var(--unit-azul-claro);
+    }
+
+    /* FLUXO EM PASSOS (TIMELINE) */
+    .timeline{
+        position:relative;
+        margin-top:8px;
+        padding-left:18px;
+    }
+    .timeline::before{
+        content:"";
+        position:absolute;
+        left:9px;
+        top:0;
+        bottom:0;
+        width:2px;
+        background:linear-gradient(to bottom,var(--unit-azul-medio),var(--unit-azul-claro));
+        opacity:0.6;
+    }
+    .step{
+        position:relative;
+        margin-bottom:12px;
+        display:flex;
+        gap:10px;
+    }
+    .step-marker{
+        position:relative;
+        z-index:1;
+        width:18px;
+        height:18px;
+        border-radius:50%;
+        background:#fff;
+        border:2px solid var(--unit-azul-medio);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:10px;
+        color:var(--unit-azul-medio);
+        flex-shrink:0;
+        margin-top:3px;
+    }
+    .step-card{
+        flex:1;
+        background:var(--unit-cinza-claro);
+        border-radius:10px;
+        padding:8px 10px;
+        font-size:12px;
+    }
+    .step-title{
+        font-weight:bold;
+        color:var(--unit-azul-escuro);
+        margin-bottom:4px;
+    }
+    .step-desc{
+        margin:0 0 4px;
+    }
+    .step-card ol,
+    .step-card ul{
+        margin:0 0 0 18px;
+        padding:0;
+    }
+    .step-card li{
+        margin:0 0 2px;
+    }
+
+    .chips{
+        margin-bottom:6px;
+    }
+    .chip{
+        display:inline-block;
+        padding:2px 7px;
+        border-radius:999px;
+        background:var(--unit-azul-claro);
+        color:var(--unit-azul-escuro);
+        font-size:11px;
+        margin:0 4px 4px 0;
+    }
+
+    .box-dica{
+        border-left:3px solid var(--unit-verde);
+        background:#f3fff8;
+        padding:6px 10px;
+        margin-top:10px;
+        font-size:12px;
+    }
+
+    @media (max-width:768px){
+        .page{padding:18px 14px 26px;}
+        .header{flex-direction:column;align-items:flex-start;gap:8px;}
+        .header-title{text-align:left;}
+        .cards-etapas{flex-direction:column;}
+    }
+</style>
+</head>
+<body>
+<div class="page">
+
+    <!-- CABEÇALHO -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-mark">U</div>
+            <div class="logo-text">
+                <span>UNIT</span>
+                <span>Fluxo RM · Análise de Documentos</span>
+            </div>
+        </div>
+        <div class="header-title">
+            <div><strong>Uso Interno · Grupo Tiradentes</strong></div>
+            <div class="small">Clique em uma etapa para visualizar o passo a passo.</div>
+        </div>
+    </div>
+
+    <h1>Fluxo de Análise de Documentos no RM</h1>
+    <p class="small">
+        Este painel apresenta de forma interativa as 2 etapas do processo:
+        <strong>Documentos Primários</strong> (Processo Seletivo) e
+        <strong>Documentos de Matrícula</strong> (Calouros).
+    </p>
+
+    <!-- CARDS DAS ETAPAS -->
+    <div class="cards-etapas">
+        <div class="card-etapa" onclick="abrirEtapa('etapa1')">
+            <div class="card-left">
+                <div class="icon-circle primarios">📂</div>
+                <div class="card-info">
+                    <div class="card-title">Etapa 1 – Documentos Primários</div>
+                    <div class="card-sub">
+                        Transferência Externa · Portador de Diploma · ENEM
+                    </div>
+                </div>
+            </div>
+            <div class="card-arrow">▶</div>
+        </div>
+
+        <div class="card-etapa" onclick="abrirEtapa('etapa2')">
+            <div class="card-left">
+                <div class="icon-circle matricula">📝</div>
+                <div class="card-info">
+                    <div class="card-title">Etapa 2 – Documentos de Matrícula</div>
+                    <div class="card-sub">
+                        Conferência de documentos de calouros no período vigente
+                    </div>
+                </div>
+            </div>
+            <div class="card-arrow">▶</div>
+        </div>
+    </div>
+
+    <!-- ETAPA 1 – DOCUMENTOS PRIMÁRIOS -->
+    <div id="etapa1" class="etapa-container">
+        <div class="etapa-header">
+            <div class="etapa-title">
+                <span>📂 Etapa 1 – Documentos Primários (Processo Seletivo)</span>
+                <span class="pill">RM > Processo Seletivo</span>
+            </div>
+            <button class="btn-voltar" onclick="fecharEtapas()">Voltar ao menu</button>
+        </div>
+
+        <div class="chips">
+            <span class="chip">Transferência Externa (outras IES ou GT)</span>
+            <span class="chip">Portador de Diploma (outras IES ou GT)</span>
+            <span class="chip">ENEM</span>
+        </div>
+
+        <div class="timeline">
+            <!-- Passo 1 -->
+            <div class="step">
+                <div class="step-marker">1</div>
+                <div class="step-card">
+                    <div class="step-title">Acessar o RM e o módulo Processo Seletivo</div>
+                    <p class="step-desc">Caminho até a tela de Processos Seletivos.</p>
+                    <ol>
+                        <li>Acessa o <strong>RM</strong>.</li>
+                        <li>Clica no <strong>símbolo que parece um livro</strong>.</li>
+                        <li>Clica em <strong>Educacional</strong>.</li>
+                        <li>Clica em <strong>Processo Seletivo</strong>.</li>
+                        <li>Clica em <strong>Cadastros</strong>.</li>
+                        <li>Clica em <strong>Processos Seletivos / Venda Online de Cursos</strong>.</li>
+                        <li>Seleciona a opção <strong>TODOS</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Passo 2 -->
+            <div class="step">
+                <div class="step-marker">2</div>
+                <div class="step-card">
+                    <div class="step-title">Localizar o Processo Seletivo</div>
+                    <p class="step-desc">Filtra o processo correto antes da análise.</p>
+                    <ol>
+                        <li>No canto superior direito, clica na <strong>lupa</strong>.</li>
+                        <li>Pesquisa pelo <strong>processo seletivo</strong> (nome ou código).</li>
+                        <li>Seleciona a <strong>caixa do processo seletivo</strong> (primeira coluna da esquerda).</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Passo 3 -->
+            <div class="step">
+                <div class="step-marker">3</div>
+                <div class="step-card">
+                    <div class="step-title">Abrir a consulta de Documentos Pendentes</div>
+                    <p class="step-desc">Consulta que mostra os documentos primários pendentes.</p>
+                    <ol>
+                        <li>Com o processo marcado, clica em <strong>Anexos</strong>.</li>
+                        <li>Clica em <strong>Consulta SQL</strong>.</li>
+                        <li>Seleciona <strong>“Documentos Pendentes de Análise Processo Seletivo”</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Passo 4 -->
+            <div class="step">
+                <div class="step-marker">4</div>
+                <div class="step-card">
+                    <div class="step-title">Exportar os registros para XLS</div>
+                    <p class="step-desc">Gerar relatório para controle em planilha.</p>
+                    <ol>
+                        <li>Na lista, marca <strong>Selecionar todos [x]</strong>.</li>
+                        <li>Clica em <strong>Exportar</strong>.</li>
+                        <li>Escolhe <strong>Exportar para XLS</strong>.</li>
+                        <li>Salva o arquivo <strong>.xls</strong> na pasta padrão da equipe.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Passo 5 -->
+            <div class="step">
+                <div class="step-marker">5</div>
+                <div class="step-card">
+                    <div class="step-title">Copiar os dados e colar na planilha</div>
+                    <p class="step-desc">Atualizar a planilha de Documentos Primários.</p>
+                    <ol>
+                        <li>Abre o arquivo <strong>.xls</strong>.</li>
+                        <li>Seleciona todos os dados (<strong>Ctrl + A</strong>) e copia (<strong>Ctrl + C</strong>).</li>
+                        <li>Abre a <strong>planilha de controle</strong>.</li>
+                        <li>Acessa a aba de <strong>Documentos Primários / Processo Seletivo</strong>.</li>
+                        <li>Cola na <strong>primeira linha vazia</strong> (<strong>Ctrl + V</strong>).</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-dica">
+            <strong>Dica operacional:</strong> mantenha uma aba exclusiva para Documentos Primários
+            (Transferência, Portador, ENEM) e utilize o <strong>RA</strong> como chave principal para cruzar informações.
+        </div>
+    </div>
+
+    <!-- ETAPA 2 – DOCUMENTOS DE MATRÍCULA -->
+    <div id="etapa2" class="etapa-container">
+        <div class="etapa-header">
+            <div class="etapa-title">
+                <span>📝 Etapa 2 – Documentos de Matrícula (Calouros)</span>
+                <span class="pill">RM > Educacional > Períodos Letivos</span>
+            </div>
+            <button class="btn-voltar" onclick="fecharEtapas()">Voltar ao menu</button>
+        </div>
+
+        <p class="small">
+            Nesta etapa são conferidos os <strong>documentos de matrícula</strong> dos calouros
+            no período letivo vigente.
+        </p>
+
+        <div class="timeline">
+            <!-- Passo 1 -->
+            <div class="step">
+                <div class="step-marker">1</div>
+                <div class="step-card">
+                    <div class="step-title">Acessar o RM e o módulo Períodos Letivos</div>
+                    <p class="step-desc">Entrada pela área Educacional do RM.</p>
+                    <ol>
+                        <li>Acessa o <strong>RM</strong>.</li>
+                        <li>Clica no <strong>símbolo que parece um livro</strong>.</li>
+                        <li>Clica em <strong>Educacional</strong>.</li>
+                        <li>Clica novamente em <strong>Educacional</strong>.</li>
+                        <li>Clica em <strong>Períodos Letivos</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Passo 2 -->
+            <div class="step">
+                <div class="step-marker">2</div>
+                <div class="step-card">
+                    <div class="step-title">Filtrar o período letivo vigente</div>
+                    <p class="step-desc">Garante que você analisa apenas o período atual.</p>
+                    <ol>
+                        <li>Filtra para o <strong>período letivo vigente</strong> (ex.: 2026.1).</li>
+                        <li>Após aplicar o filtro, localiza o período desejado.</li>
+                        <li>Seleciona a <strong>caixa do período letivo</strong> (primeira coluna da esquerda).</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Passo 3 -->
+            <div class="step">
+                <div class="step-marker">3</div>
+                <div class="step-card">
+                    <div class="step-title">Abrir a consulta de Conferência de Documentos de Calouros</div>
+                    <p class="step-desc">Consulta que mostra o status dos documentos de matrícula.</p>
+                    <ol>
+                        <li>Com o período marcado, clica em <strong>Anexos</strong>.</li>
+                        <li>Clica em <strong>Consulta SQL</strong>.</li>
+                        <li>Seleciona <strong>“Conferência de Documentos de Calouros”</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Passo 4 -->
+            <div class="step">
+                <div class="step-marker">4</div>
+                <div class="step-card">
+                    <div class="step-title">Exportar os registros para XLS</div>
+                    <p class="step-desc">Exportar a lista de calouros para conferência em planilha.</p>
+                    <ol>
+                        <li>Aguarda carregar a lista de calouros.</li>
+                        <li>Marca <strong>Selecionar todos [x]</strong>.</li>
+                        <li>Clica em <strong>Exportar</strong>.</li>
+                        <li>Escolhe <strong>Exportar para XLS</strong>.</li>
+                        <li>Salva o arquivo <strong>.xls</strong> na pasta padrão de calouros.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Passo 5 -->
+            <div class="step">
+                <div class="step-marker">5</div>
+                <div class="step-card">
+                    <div class="step-title">Copiar os dados e colar na planilha</div>
+                    <p class="step-desc">Atualizar a aba de Matrícula na planilha de controle.</p>
+                    <ol>
+                        <li>Abre o arquivo <strong>.xls</strong>.</li>
+                        <li>Seleciona todos os dados (<strong>Ctrl + A</strong>) e copia (<strong>Ctrl + C</strong>).</li>
+                        <li>Abre a <strong>planilha de controle</strong>.</li>
+                        <li>Acessa a aba de <strong>Matrícula – Calouros</strong>.</li>
+                        <li>Cola na <strong>primeira linha vazia</strong> (<strong>Ctrl + V</strong>).</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-dica">
+            <strong>Dica:</strong> mantenha abas separadas por <strong>campus/polo</strong> na planilha e
+            utilize filtros por <strong>Status Geral</strong> para acompanhar pendências de documentos de matrícula.
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function fecharEtapas(){
+        document.querySelectorAll('.etapa-container').forEach(function(el){
+            el.style.display = 'none';
+        });
+        window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function abrirEtapa(id){
+        fecharEtapas();
+        var el = document.getElementById(id);
+        if(el){
+            el.style.display = 'block';
+            window.scrollTo({top:el.offsetTop-10,behavior:'smooth'});
+        }
+    }
+</script>
+</body>
+</html>
