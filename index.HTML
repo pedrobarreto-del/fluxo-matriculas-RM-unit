@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Fluxo Interativo – Exportação de Processos do RM para Planilha</title>
+<style>
+    :root{
+        --unit-azul-escuro:#003366;
+        --unit-azul-medio:#0056a6;
+        --unit-azul-claro:#e6f0ff;
+        --unit-cinza-claro:#f5f5f5;
+        --unit-cinza-medio:#cccccc;
+        --unit-verde:#00a859;
+        --unit-laranja:#ff8a00;
+    }
+    *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;}
+    body{
+        margin:0;
+        background:#ffffff;
+        color:#222;
+    }
+    .page{
+        max-width:1100px;
+        margin:0 auto;
+        padding:24px 32px 40px;
+    }
+    .header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        margin-bottom:24px;
+        border-bottom:3px solid var(--unit-azul-medio);
+        padding-bottom:12px;
+    }
+    .logo{
+        display:flex;
+        align-items:center;
+        gap:10px;
+    }
+    .logo-mark{
+        width:42px;
+        height:42px;
+        border-radius:8px;
+        background:var(--unit-azul-medio);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#fff;
+        font-weight:bold;
+        font-size:20px;
+    }
+    .logo-text{
+        font-size:20px;
+        font-weight:bold;
+        color:var(--unit-azul-escuro);
+    }
+    .header-title{
+        text-align:right;
+        font-size:15px;
+        color:var(--unit-azul-medio);
+    }
+
+    h1{
+        font-size:22px;
+        color:var(--unit-azul-escuro);
+        margin-top:0;
+        margin-bottom:8px;
+    }
+    h2{
+        font-size:18px;
+        color:var(--unit-azul-medio);
+        margin-top:20px;
+        margin-bottom:8px;
+    }
+    h3{
+        font-size:15px;
+        color:var(--unit-azul-escuro);
+        margin-top:16px;
+        margin-bottom:6px;
+    }
+    p{font-size:13px;line-height:1.5;margin:4px 0 8px;}
+    ul{font-size:13px;margin:4px 0 8px 18px;}
+    .small{font-size:12px;color:#555;}
+
+    /* MENU PRINCIPAL */
+    .menu-principal{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        margin:18px 0 24px;
+    }
+    .menu-btn{
+        flex:1 1 220px;
+        position:relative;
+        border-radius:10px;
+        padding:10px 12px;
+        border:1px solid var(--unit-azul-medio);
+        color:var(--unit-azul-escuro);
+        background:linear-gradient(135deg,#ffffff,#f3f7ff);
+        cursor:pointer;
+        font-size:13px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        transition:0.2s;
+    }
+    .menu-btn span.label{
+        display:flex;
+        align-items:center;
+        gap:8px;
+    }
+    .menu-btn .icon{
+        width:20px;
+        height:20px;
+        border-radius:6px;
+        background:var(--unit-azul-medio);
+        color:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:12px;
+        font-weight:bold;
+    }
+    .menu-btn:hover{
+        background:linear-gradient(135deg,#e6f0ff,#ffffff);
+        transform:translateY(-1px);
+        box-shadow:0 2px 6px rgba(0,0,0,0.08);
+    }
+    .menu-btn .arrow{
+        font-size:14px;
+        color:var(--unit-azul-medio);
+    }
+
+    /* SEÇÕES EXPANDÍVEIS */
+    .section-card{
+        border-radius:10px;
+        border:1px solid var(--unit-cinza-medio);
+        background:#fff;
+        margin-bottom:14px;
+        overflow:hidden;
+    }
+    .section-header{
+        background:var(--unit-azul-claro);
+        padding:10px 14px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        cursor:pointer;
+    }
+    .section-header .title{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        font-size:14px;
+        color:var(--unit-azul-escuro);
+        font-weight:bold;
+    }
+    .section-header .badge{
+        font-size:11px;
+        padding:3px 7px;
+        border-radius:10px;
+        background:#fff;
+        color:var(--unit-azul-medio);
+        border:1px solid var(--unit-azul-medio);
+    }
+    .section-toggle{
+        font-size:16px;
+        color:var(--unit-azul-medio);
+    }
+    .section-body{
+        padding:10px 16px 12px;
+        display:none;
+        font-size:13px;
+    }
+
+    .dica{
+        border-left:3px solid var(--unit-verde);
+        background:#f3fff8;
+        padding:6px 10px;
+        margin:6px 0 10px;
+        font-size:12px;
+    }
+    .alerta{
+        border-left:3px solid var(--unit-laranja);
+        background:#fff8ef;
+        padding:6px 10px;
+        margin:6px 0 10px;
+        font-size:12px;
+    }
+
+    /* PASSOS EM CARTÕES */
+    .steps-grid{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        margin-top:6px;
+    }
+    .step-card{
+        flex:1 1 260px;
+        border-radius:8px;
+        background:var(--unit-cinza-claro);
+        padding:8px 10px;
+        font-size:12px;
+    }
+    .step-title{
+        font-weight:bold;
+        color:var(--unit-azul-escuro);
+        margin-bottom:4px;
+    }
+    .step-card ol{
+        margin:0 0 0 18px;
+        padding:0;
+    }
+    .step-card li{
+        margin:0 0 2px;
+    }
+
+    .tag{
+        display:inline-block;
+        padding:2px 6px;
+        border-radius:8px;
+        background:var(--unit-azul-claro);
+        color:var(--unit-azul-escuro);
+        font-size:11px;
+        margin-right:3px;
+        margin-bottom:2px;
+    }
+
+    /* SUGESTÃO FINAL */
+    .sugestao{
+        border-radius:10px;
+        border:1px dashed var(--unit-azul-medio);
+        background:#f7faff;
+        padding:10px 12px;
+        margin-top:20px;
+        font-size:12px;
+    }
+
+    @media (max-width:768px){
+        .page{padding:16px 14px 28px;}
+        .menu-btn{flex:1 1 100%;}
+        .steps-grid{flex-direction:column;}
+    }
+</style>
+</head>
+<body>
+<div class="page">
+
+    <!-- CABEÇALHO COM “LOGO” UNIT -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-mark">U</div>
+            <div class="logo-text">UNIT – Fluxo de Documentos RM</div>
+        </div>
+        <div class="header-title">
+            <div><strong>Fluxo Interativo</strong></div>
+            <div class="small">Exportação de Processos > Planilha de Controle</div>
+        </div>
+    </div>
+
+    <h1>Fluxo Interativo – Acesso ao RM e Exportação dos Processos para Planilha</h1>
+    <p class="small">
+        Utilize este fluxo para treinar a equipe e padronizar o processo de:
+        <strong>1)</strong> acessar o RM, <strong>2)</strong> localizar processos e documentos, <strong>3)</strong> exportar para <strong>.xls</strong>
+        e <strong>4)</strong> colar na planilha de controle.
+    </p>
+
+    <!-- MENU PRINCIPAL INTERATIVO -->
+    <h2>Menu Rápido</h2>
+    <div class="menu-principal">
+        <button class="menu-btn" onclick="toggleSection('sec-acesso')">
+            <span class="label">
+                <span class="icon">1</span>
+                <span>Acesso ao RM</span>
+            </span>
+            <span class="arrow">▶</span>
+        </button>
+        <button class="menu-btn" onclick="toggleSection('sec-primarios')">
+            <span class="label">
+                <span class="icon">2</span>
+                <span>Documentos Primários – Processo Seletivo</span>
+            </span>
+            <span class="arrow">▶</span>
+        </button>
+        <button class="menu-btn" onclick="toggleSection('sec-matricula')">
+            <span class="label">
+                <span class="icon">3</span>
+                <span>Documentos de Matrícula – Calouros</span>
+            </span>
+            <span class="arrow">▶</span>
+        </button>
+        <button class="menu-btn" onclick="toggleSection('sec-boaspraticas')">
+            <span class="label">
+                <span class="icon">4</span>
+                <span>Boas Práticas & Erros Comuns</span>
+            </span>
+            <span class="arrow">▶</span>
+        </button>
+    </div>
+
+    <!-- SEÇÃO 1 – ACESSO AO RM -->
+    <div id="sec-acesso" class="section-card">
+        <div class="section-header" onclick="toggleSection('sec-acesso')">
+            <div class="title">
+                <span>1. Acesso ao RM</span>
+            </div>
+            <div class="badge">Início do fluxo</div>
+            <div class="section-toggle">▼</div>
+        </div>
+        <div class="section-body">
+            <p><strong>Objetivo:</strong> Entrar no sistema RM (Totvs Educacional) e acessar o menu principal.</p>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-title">1. Abrir o RM</div>
+                    <ol>
+                        <li>Acesse o ícone ou atalho do <strong>RM Totvs</strong> no seu computador.</li>
+                        <li>Informe seu <strong>usuário</strong> e <strong>senha</strong>.</li>
+                        <li>Aguarde o carregamento da tela inicial.</li>
+                    </ol>
+                </div>
+                <div class="step-card">
+                    <div class="step-title">2. Acessar o menu pelo símbolo do livro</div>
+                    <ol>
+                        <li>Na tela principal, localize o <strong>símbolo que parece um livro</strong>.</li>
+                        <li>Clique nesse símbolo para visualizar os módulos.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="dica">
+                <strong>Dica operacional:</strong> oriente a equipe a sempre acessar o RM pelo mesmo atalho
+                (padrão na instituição) para evitar confusões com ambientes de teste ou versões antigas.
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 2 – DOCUMENTOS PRIMÁRIOS (PROCESSO SELETIVO) -->
+    <div id="sec-primarios" class="section-card">
+        <div class="section-header" onclick="toggleSection('sec-primarios')">
+            <div class="title">
+                <span>2. Etapa 1 – Documentos Primários (Processo Seletivo)</span>
+            </div>
+            <div class="badge">Transferência / Portador / ENEM</div>
+            <div class="section-toggle">▼</div>
+        </div>
+        <div class="section-body">
+            <p>
+                Nesta etapa você acessa os <strong>documentos primários</strong> vinculados ao
+                <strong>Processo Seletivo</strong> dos seguintes tipos:
+            </p>
+            <span class="tag">Transferência Externa (outras IES ou GT)</span>
+            <span class="tag">Portador de Diploma (outras IES ou GT)</span>
+            <span class="tag">ENEM</span>
+
+            <h3>2.1 Caminho no RM até Processos Seletivos</h3>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-title">Acessar o módulo de Processo Seletivo</div>
+                    <ol>
+                        <li>Com o RM aberto, clique no <strong>símbolo de livro</strong>.</li>
+                        <li>Clique em <strong>Educacional</strong>.</li>
+                        <li>Clique em <strong>Processo Seletivo</strong>.</li>
+                        <li>Clique em <strong>Cadastros</strong>.</li>
+                        <li>Clique em <strong>Processos Seletivos / Venda Online de Cursos</strong>.</li>
+                        <li>Na tela, selecione a aba ou filtro <strong>TODOS</strong> para visualizar todos os processos.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>2.2 Localizar o Processo Seletivo</h3>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-title">Pesquisar pela lupa</div>
+                    <ol>
+                        <li>No canto superior direito, clique na <strong>lupa</strong>.</li>
+                        <li>Digite o <strong>nome</strong> ou <strong>código</strong> do Processo Seletivo.</li>
+                        <li>Clique em <strong>Pesquisar</strong> ou pressione <strong>Enter</strong>.</li>
+                        <li>Localize o processo desejado na lista.</li>
+                        <li>Marque a <strong>caixa de seleção</strong> na primeira coluna da esquerda do processo.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>2.3 Abrir a consulta de Documentos Pendentes</h3>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-title">Acessar a Consulta SQL</div>
+                    <ol>
+                        <li>Com o processo seletivo marcado, clique em <strong>Anexos</strong>.</li>
+                        <li>Clique em <strong>Consulta SQL</strong>.</li>
+                        <li>Selecione a consulta: <strong>“Documentos Pendentes de Análise Processo Seletivo”</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>2.4 Selecionar registros e exportar para XLS</h3>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-title">Seleção e Exportação</div>
+                    <ol>
+                        <li>Aguarde a lista de candidatos com documentos pendentes carregar.</li>
+                        <li>Clique para <strong>selecionar todos</strong> (marque o campo <strong>[x]</strong> para todos os registros).</li>
+                        <li>Clique em <strong>Exportar</strong>.</li>
+                        <li>Selecione a opção <strong>Exportar para XLS</strong>.</li>
+                        <li>Salve o arquivo <strong>.xls</strong> em uma pasta padrão (ex.: <em>Documentos > RM > Processos Seletivos > Ano_Semestre</em>).</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>2.5 Copiar os dados para a planilha de controle</h3>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-title">Importar para a planilha</div>
+                    <ol>
+                        <li>Abra o arquivo <strong>.xls</strong> (Excel ou Google Sheets).</li>
+                        <li>Selecione todos os dados (Ctrl + A ou seleção manual das linhas).</li>
+                        <li>Copie os dados (Ctrl + C).</li>
+                        <li>Abra a <strong>planilha de controle de documentos</strong> da equipe.</li>
+                        <li>Acesse a aba correta (ex.: “Documentos Primários – PS”).</li>
+                        <li>Posicione o cursor na <strong>primeira linha vazia</strong> abaixo dos registros já existentes.</li>
+                        <li>Cole os dados (Ctrl + V).</li>
+                        <li>Ajuste largura de colunas, filtros e formatações, se necessário.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="alerta">
+                <strong>Atenção:</strong> verifique se as colunas trazidas do RM estão coerentes com a estrutura da
+                planilha, principalmente: <strong>RA</strong>, Nome, Curso, Campus, Tipo de Processo e Situação.
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 3 – DOCUMENTOS DE MATRÍCULA (CALOUROS) -->
+    <div id="sec-matricula" class="section-card">
+        <div class="section-header" onclick="toggleSection('sec-matricula')">
+            <div class="title">
+                <span>3. Etapa 2 – Documentos de Matrícula (Calouros)</span>
+            </div>
+            <div class="badge">Períodos Letivos</div>
+            <div class="section-toggle">▼</div>
+        </div>
+        <div class="section-body">
+            <p>
+                Nesta etapa são consultados os <strong>documentos de matrícula</strong> dos <strong>calouros</strong>,
+                já vinculados ao <strong>período letivo</strong> (não mais ao processo seletivo).
+            </p>
+
+            <h3>3.1 Caminho no RM até Períodos Letivos</h3>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-title">Acessar o módulo Educacional</div>
+                    <ol>
+                        <li>No RM, clique no <strong>símbolo de livro</strong>.</li>
+                        <li>Clique em <strong>Educacional</strong>.</li>
+                        <li>Clique novamente em <strong>Educacional</strong> (módulo principal).</li>
+                        <li>Clique em <strong>Períodos Letivos</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>3.2 Filtrar o período letivo vigente</h3>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-title">Filtrar e selecionar</div>
+                    <ol>
+                        <li>Utilize os filtros da tela para localizar o <strong>período letivo vigente</strong> (ex.: 2026.1).</li>
+                        <li>Aplique o filtro e aguarde a lista ser exibida.</li>
+                        <li>Localize o período desejado.</li>
+                        <li>Marque a <strong>caixa de seleção</strong> na primeira coluna da esquerda.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>3.3 Abrir a consulta de Conferência de Documentos de Calouros</h3>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-title">Acessar Consulta SQL</div>
+                    <ol>
+                        <li>Com o período letivo marcado, clique em <strong>Anexos</strong>.</li>
+                        <li>Clique em <strong>Consulta SQL</strong>.</li>
+                        <li>Selecione a consulta: <strong>“Conferência de Documentos de Calouros”</strong>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>3.4 Selecionar registros e exportar para XLS</h3>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-title">Seleção e Exportação</div>
+                    <ol>
+                        <li>Aguarde a lista de calouros ser carregada.</li>
+                        <li>Clique para <strong>selecionar todos</strong> (campo <strong>[x]</strong> para todos os registros).</li>
+                        <li>Clique em <strong>Exportar</strong>.</li>
+                        <li>Selecione <strong>Exportar para XLS</strong>.</li>
+                        <li>Salve o arquivo <strong>.xls</strong> em pasta padrão (ex.: <em>Documentos > RM > Calouros > Ano_Semestre</em>).</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>3.5 Copiar os dados para a planilha de controle</h3>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-title">Importar para aba de Matrícula</div>
+                    <ol>
+                        <li>Abra o arquivo <strong>.xls</strong> recém-exportado.</li>
+                        <li>Selecione todos os registros (Ctrl + A ou seleção manual).</li>
+                        <li>Copie (Ctrl + C).</li>
+                        <li>Abra a <strong>planilha de controle de documentos</strong>.</li>
+                        <li>Acesse a aba de <strong>Matrícula – Calouros</strong> (por período e/ou campus).</li>
+                        <li>Localize a <strong>primeira linha vazia</strong>.</li>
+                        <li>Cole os dados (Ctrl + V).</li>
+                        <li>Confirme se colunas como <strong>RA</strong>, Nome, Curso, Campus, Período Letivo e Situação dos Documentos apareceram corretamente.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="dica">
+                <strong>Dica:</strong> se a planilha estiver segmentada por campus/polo, cole os dados diretamente na
+                aba correspondente ao campus, evitando conflitos entre equipes.
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 4 – BOAS PRÁTICAS E ERROS COMUNS -->
+    <div id="sec-boaspraticas" class="section-card">
+        <div class="section-header" onclick="toggleSection('sec-boaspraticas')">
+            <div class="title">
+                <span>4. Boas Práticas e Erros Comuns</span>
+            </div>
+            <div class="badge">Padronização</div>
+            <div class="section-toggle">▼</div>
+        </div>
+        <div class="section-body">
+            <h3>4.1 Boas práticas ao atualizar a planilha</h3>
+            <ul>
+                <li><strong>Nomeação padrão:</strong> usar ano/período nos nomes de arquivos e abas (ex.: <em>2026.1 – PS</em>, <em>2026.1 – Calouros</em>).</li>
+                <li><strong>Evitar duplicidade:</strong> antes de colar novos dados, verificar se aquele processo/período já não foi importado.</li>
+                <li><strong>RA como chave:</strong> utilizar o <strong>RA</strong> como identificador principal do aluno para cruzar informações entre abas.</li>
+                <li><strong>Cabeçalho fixo:</strong> congelar a primeira linha para visualizar bem os títulos de colunas.</li>
+                <li><strong>Filtros sempre ativos:</strong> manter filtros para acompanhar pendências por campus, curso, tipo de processo e responsável.</li>
+            </ul>
+
+            <h3>4.2 Erros comuns e como evitar</h3>
+            <ul>
+                <li>
+                    <strong>Exportar o processo seletivo errado</strong><br>
+                    Sempre conferir <strong>nome, tipo e ano</strong> do processo antes de exportar.
+                </li>
+                <li>
+                    <strong>Colar dados sobre registros antigos</strong><br>
+                    Descer até a <strong>última linha preenchida</strong> antes de colar novos dados.
+                </li>
+                <li>
+                    <strong>Misturar documentos primários com documentos de matrícula</strong><br>
+                    Manter abas separadas: uma para <em>Documentos Pendentes – Processo Seletivo</em> e outra para
+                    <em>Conferência de Documentos – Calouros</em>.
+                </li>
+                <li>
+                    <strong>Salvar relatórios em locais diferentes</strong><br>
+                    Definir uma <strong>pasta padrão</strong> para todos os arquivos .xls exportados e comunicar à equipe.
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- SUGESTÃO FINAL DE MELHORIA -->
+    <div class="sugestao">
+        <strong>Sugestão de melhoria operacional:</strong><br>
+        Configurar na planilha campos como <em>Responsável</em>, <em>Campus</em> e <em>Status de Documento</em> com
+        listas suspensas (validação de dados). Isso reduz erros de digitação, facilita filtros e gera relatórios mais
+        confiáveis para acompanhamento de pendências por equipe e por unidade.
+    </div>
+
+</div>
+
+<script>
+    // Função para abrir/fechar seções
+    function toggleSection(id){
+        var section = document.getElementById(id);
+        if(!section) return;
+        var body = section.querySelector('.section-body');
+        var toggleIcon = section.querySelector('.section-toggle');
+        if(body.style.display === 'block'){
+            body.style.display = 'none';
+            if(toggleIcon) toggleIcon.textContent = '▶';
+        }else{
+            body.style.display = 'block';
+            if(toggleIcon) toggleIcon.textContent = '▼';
+        }
+    }
+
+    // Opcional: abrir a primeira seção por padrão
+    window.onload = function(){
+        toggleSection('sec-acesso');
+    };
+</script>
+</body>
+</html>
